@@ -18,9 +18,9 @@
     "prisma:studio": "prisma studio --schema=prisma/schema.prisma"
   },
   "devDependencies": {
-    "prisma": "^8.0.0-rc.13"
+    "prisma": "^5.22.0"
   },
   "dependencies": {
-    "@prisma/client": "^7.10.0"
+    "@prisma/client": "^5.22.0"
   }
 }

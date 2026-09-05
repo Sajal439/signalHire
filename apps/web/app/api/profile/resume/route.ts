@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/ NextResponse';
-import prisma from '../../../../lib/db';
-import { parseResume } from '../../../../lib/resumeParser';
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/db';
+import { parseResume } from '@/lib/resumeParser';
 
 export async function POST(req: Request) {
   try {

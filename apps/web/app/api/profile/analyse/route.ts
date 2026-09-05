@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/ NextResponse';
-import prisma from '../../../../lib/db';
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/db';
 import crypto from 'crypto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 

@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import prisma from '../../../../lib/db';
-import { MatchCard } from '../../../components/MatchCard';
-import { ProfileStatus } from '../../../components/ProfileStatus';
+import prisma from '@/lib/db';
+import { MatchCard } from '@/components/MatchCard';
+import { ProfileStatus } from '@/components/ProfileStatus';
 
 const DIGEST_TOP_N = 20;
 
@@ -49,7 +49,7 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {matches.map((match) => (
+          {matches.map((match: any) => (
             <MatchCard
               key={match.id}
               company={match.job.company}

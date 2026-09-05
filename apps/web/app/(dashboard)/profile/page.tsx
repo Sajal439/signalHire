@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import prisma from '../../../../lib/db';
-import { ProfileClient } from '../../../components/ProfileClient';
+import prisma from '@/lib/db';
+import { ProfileClient } from '@/components/ProfileClient';
 
 export default async function ProfilePage() {
   const { userId: clerkId } = auth();

@@ -1,7 +1,7 @@
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import prisma from '../../../../lib/db';
-import { OnboardingWizard } from '../../../components/OnboardingWizard';
+import prisma from '@/lib/db';
+import { OnboardingWizard } from '@/components/OnboardingWizard';
 
 export default async function OnboardingPage() {
   const { userId: clerkId } = auth();
@@ -21,7 +21,8 @@ export default async function OnboardingPage() {
   try {
     const client = clerkClient();
     const externalAccounts = await client.users.getUserOauthAccessToken(clerkId, 'oauth_github');
-    if (externalAccounts && externalAccounts.length > 0) {
+    const tokens = Array.isArray(externalAccounts) ? externalAccounts : (externalAccounts as any)?.data || [];
+    if (tokens.length > 0) {
       // Just a check to see if they linked it, but we can't easily get the username without decoding the token or looking at the user object
       const fullUser = await client.users.getUser(clerkId);
       const githubAccount = fullUser.externalAccounts.find(ea => ea.provider === 'oauth_github');

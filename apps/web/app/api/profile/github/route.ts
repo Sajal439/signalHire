@@ -1,7 +1,7 @@
 import { auth, clerkClient } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/ NextResponse';
-import prisma from '../../../../lib/db';
-import { fetchGithubProfile } from '../../../../lib/github';
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/db';
+import { fetchGithubProfile } from '@/lib/github';
 
 export async function POST(req: Request) {
   try {
