@@ -1,0 +1,26 @@
+{
+  "name": "job-fit-engine",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "packages/pipeline"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
+    "fetch": "npm run fetch --workspace=packages/pipeline",
+    "embed": "npm run embed --workspace=packages/pipeline",
+    "match": "npm run match --workspace=packages/pipeline",
+    "notify": "npm run notify --workspace=packages/pipeline",
+    "pipeline": "npm run pipeline --workspace=packages/pipeline",
+    "prisma:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
+    "prisma:studio": "prisma studio --schema=prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "prisma": "^8.0.0-rc.13"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.10.0"
+  }
+}

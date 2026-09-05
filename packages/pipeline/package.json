@@ -1,0 +1,21 @@
+{
+  "name": "@job-fit/pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "fetch": "node src/fetchers/run.js",
+    "embed": "node src/embeddings/index.js",
+    "match": "node src/matching/index.js",
+    "notify": "node src/notify/index.js",
+    "pipeline": "node src/index.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.16.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.7.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "@google/generative-ai": "^0.21.0",
+    "p-retry": "^4.6.2"
+  }
+}

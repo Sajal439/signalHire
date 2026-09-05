@@ -1,0 +1,110 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+model User {
+  id             String   @id @default(cuid())
+  clerkId        String   @unique // synced from Clerk webhook on user.created
+  email          String?  @unique
+  telegramChatId String?  @unique // optional — set if user links Telegram
+  createdAt      DateTime @default(now())
+
+  resumeProfile ResumeProfile?
+  matches       JobMatch[]
+}
+
+// ─── Resume / Profile ─────────────────────────────────────────────────────────
+
+model ResumeProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Raw sources — stored separately so we can re-combine on demand
+  resumeText    String? @db.Text // extracted text from uploaded PDF/DOCX
+  githubSummary String? @db.Text // assembled from GitHub API (repos, languages, bio)
+  githubUsername String?
+
+  // Combined profile — this is what actually gets embedded
+  // Assembled by POST /api/profile/analyse from resumeText + githubSummary
+  combinedText String? @db.Text
+  textHash     String? // SHA-256 of combinedText — triggers re-embed if changed
+
+  // Embedding — stored as a float array, cosine similarity done in JS
+  // (No pgvector by design; see DESIGN.md §4)
+  embedding  Float[]
+  embeddedAt DateTime?
+
+  // Onboarding state
+  profileReady Boolean  @default(false) // true once analyse step completes
+  updatedAt    DateTime @updatedAt
+}
+
+// ─── Jobs (shared across all users) ──────────────────────────────────────────
+
+model Job {
+  id          String   @id @default(cuid())
+  source      String // "remoteok" | "hn_whoishiring"
+  externalId  String // source's own id, used for dedup
+  title       String
+  company     String
+  description String   @db.Text
+  url         String
+  location    String?
+  remote      Boolean  @default(false)
+  postedAt    DateTime?
+  fetchedAt   DateTime @default(now())
+
+  // Embedding computed once, shared across all users
+  embedding  Float[]
+  embeddedAt DateTime?
+
+  matches JobMatch[]
+
+  @@unique([source, externalId])
+}
+
+// ─── Per-user match scores ────────────────────────────────────────────────────
+
+// Job embeddings are computed once and shared, but every (user, job) pair
+// gets its own similarity/LLM score and its own notification state.
+// This is what makes the system multi-tenant. See DESIGN.md §2.
+model JobMatch {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId  String
+  job    Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  fitScore  Float?   // cosine similarity (0–1), computed in JS
+  llmScore  Int?     // 0–100, set only for pairs above MIN_SIMILARITY
+  llmReason String?  @db.Text // one-sentence fit explanation from LLM
+
+  scoredAt   DateTime?
+  notifiedAt DateTime? // set once included in this user's Telegram digest
+
+  @@unique([userId, jobId])
+}
+
+// ─── Pipeline run log ─────────────────────────────────────────────────────────
+
+// Records every pipeline stage execution so you can monitor reliability.
+// Never required for the happy path — purely observability.
+model PipelineRun {
+  id         String    @id @default(cuid())
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  stage      String // "fetch" | "embed" | "match" | "notify" | "pipeline"
+  status     String // "success" | "error"
+  details    Json? // { fetched, embedded, scored, notified, error }
+}
