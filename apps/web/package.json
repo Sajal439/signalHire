@@ -12,7 +12,9 @@
   "dependencies": {
     "@clerk/nextjs": "^5.7.5",
     "@octokit/rest": "^21.0.0",
-    "@prisma/client": "^5.22.0",
+    "@prisma/client": "^7.10.0",
+    "@prisma/adapter-pg": "^7.10.0",
+    "pg": "^8.13.3",
     "@google/generative-ai": "^0.24.1",
     "mammoth": "^1.9.0",
     "next": "^14.2.25",
@@ -22,9 +24,10 @@
     "svix": "^1.24.0"
   },
   "devDependencies": {
-    "prisma": "^5.22.0",
+    "prisma": "^7.10.0",
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.4",
+    "@types/pg": "^8",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
