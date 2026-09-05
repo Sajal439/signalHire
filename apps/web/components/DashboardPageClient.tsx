@@ -1,40 +1,28 @@
-import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import prisma from '@/lib/db';
+'use client';
+
 import { MatchCard } from '@/components/MatchCard';
 import { ProfileStatus } from '@/components/ProfileStatus';
 
-const DIGEST_TOP_N = 20;
+interface Match {
+  id: string;
+  llmScore: number | null;
+  llmReason: string | null;
+  fitScore: number | null;
+  job: {
+    company: string;
+    title: string;
+    source: string;
+    url: string;
+    postedAt: Date | null;
+  };
+}
 
-export default async function DashboardPage() {
-  const { userId: clerkId } = auth();
-  if (!clerkId) redirect('/sign-in');
+interface DashboardPageClientProps {
+  profileReady: boolean;
+  matches: Match[];
+}
 
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-    include: { resumeProfile: true }
-  });
-
-  if (!user) {
-    return <div>User not found.</div>;
-  }
-
-  const profileReady = user.resumeProfile?.profileReady || false;
-
-  const matches = await prisma.jobMatch.findMany({
-    where: {
-      userId: user.id,
-      llmScore: { not: null }
-    },
-    include: {
-      job: true
-    },
-    orderBy: {
-      llmScore: 'desc'
-    },
-    take: DIGEST_TOP_N
-  });
-
+export function DashboardPageClient({ profileReady, matches }: DashboardPageClientProps) {
   return (
     <div>
       {!profileReady && <ProfileStatus />}
@@ -49,7 +37,7 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {matches.map((match: any) => (
+          {matches.map((match) => (
             <MatchCard
               key={match.id}
               company={match.job.company}
